@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import './helper/color_pallet.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:get/get.dart';
+import '/home.dart';
+import 'controller/score_controller.dart';
 
 class StarterPage extends StatefulWidget {
   const StarterPage({super.key});
@@ -10,10 +13,12 @@ class StarterPage extends StatefulWidget {
 }
 
 class _StarterPageState extends State<StarterPage> with ColorPallet {
-  List<bool> isActive = [true, false, true, false, false];
+  List<bool> isActive = [true, false, false, true, false, false];
   bool startNext = false;
   bool startNextNext = false;
   bool startNextNextNext = false;
+  final scoreController = Get.put(ScoreController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +27,10 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
         children: [
           _buildBlackBoard(),
           _buildOptionPane(),
+          _buildScoreResult(),
+          Expanded(child: Container()),
+          _buildPlayButton(),
+          Expanded(child: Container()),
         ],
       ),
     );
@@ -29,7 +38,8 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
 
   _buildOptionPane() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+      clipBehavior: Clip.antiAlias,
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 30),
       width: double.infinity,
       height: 35,
       decoration: BoxDecoration(
@@ -40,12 +50,12 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
         children: [
           _buildTextButton(0, 'ፊደል'),
           _buildTextButton(1, 'ቁጥር'),
+          _buildTextButton(2, 'ሥ-ነጥብ'),
           Expanded(child: Container()),
           const VerticalDivider(),
-          _buildTextButton(2, '፲'),
-          _buildTextButton(3, '፳'),
-          _buildTextButton(4, '፴'),
-          Text('ደቂቃ', style: TextStyle(color: inactiveColor, fontSize: 10)),
+          _buildTextButton(3, '፲'),
+          _buildTextButton(4, '፳'),
+          _buildTextButton(5, '፴'),
           Expanded(child: Container()),
         ],
       ),
@@ -55,10 +65,10 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
   _buildTextButton(int index, String text) {
     return TextButton(
       onPressed: () {
-        if (index > 1) {
-          isActive[2] = false;
+        if (index > 2) {
           isActive[3] = false;
           isActive[4] = false;
+          isActive[5] = false;
           setState(() {
             isActive[index] = true;
           });
@@ -70,8 +80,8 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
       },
       style: ButtonStyle(
           foregroundColor: MaterialStatePropertyAll(
-              isActive[index] ? Colors.white : inactiveColor)),
-      child: Text(text, style: const TextStyle(fontSize: 15)),
+              isActive[index] ? primaryColor : inactiveColor.withOpacity(0.3))),
+      child: Text(text, style: const TextStyle(fontSize: 13)),
     );
   }
 
@@ -81,24 +91,29 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
         Container(
           margin: const EdgeInsets.only(top: 20),
           width: MediaQuery.of(context).size.width * 0.7,
-          height: MediaQuery.of(context).size.width * 0.35,
+          height: MediaQuery.of(context).size.width * 0.4,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.orange.withOpacity(0.2),
-                Colors.orange.withOpacity(0.28),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.orange.withOpacity(0.3),
+                  Colors.orange.withOpacity(0.4),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                  blurRadius: 25,
+                  spreadRadius: 2,
+                )
+              ]),
           child: Container(
             margin: const EdgeInsets.all(9),
             decoration: BoxDecoration(
                 gradient: LinearGradient(
               colors: [
-                blackBoardColor2.withOpacity(0.75),
+                blackBoardColor2,
                 blackBoardColor1,
-                blackBoardColor2.withOpacity(0.75),
+                blackBoardColor2,
               ],
             )),
             child: Padding(
@@ -122,6 +137,7 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
                             textAlign: TextAlign.center,
                             speed: const Duration(milliseconds: 300),
                             textStyle: const TextStyle(
+                              color: Colors.white70,
                               fontSize: 16,
                             )),
                       ],
@@ -143,6 +159,9 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
                             speed: const Duration(milliseconds: 200),
                             curve: Curves.easeOut,
                             textAlign: TextAlign.left,
+                            textStyle: TextStyle(
+                              color: Colors.white70,
+                            ),
                           ),
                         ],
                       ),
@@ -164,6 +183,9 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
                             speed: const Duration(milliseconds: 200),
                             curve: Curves.easeInOut,
                             textAlign: TextAlign.left,
+                            textStyle: const TextStyle(
+                              color: Colors.white70,
+                            ),
                           ),
                         ],
                       ),
@@ -186,7 +208,8 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
                             speed: const Duration(milliseconds: 200),
                             curve: Curves.bounceOut,
                             textAlign: TextAlign.end,
-                            textStyle: const TextStyle(fontSize: 10),
+                            textStyle: const TextStyle(
+                                fontSize: 10, color: Colors.white70),
                           ),
                         ],
                       ),
@@ -243,6 +266,100 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
           ),
         ),
       ],
+    );
+  }
+
+  _buildScoreResult() {
+    return Column(
+      children: [
+        Obx(() => _buildText('ከፍተኛ ነጥብ',
+            size: 22,
+            color: scoreController.isHighScore.value
+                ? primaryColor
+                : inactiveColor)),
+        const SizedBox(height: 10),
+        Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildText('ፍጥነት',
+                  color: scoreController.isHighScore.value
+                      ? primaryColor
+                      : inactiveColor),
+              _buildText('${scoreController.highScore.value} WMP',
+                  color: scoreController.isHighScore.value
+                      ? primaryColor
+                      : inactiveColor),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Obx(
+          () => Visibility(
+              visible: scoreController.isPlayed.value,
+              child: _buildText('ያገኙት ነጥብ', size: 22, color: primaryColor)),
+        ),
+        const SizedBox(height: 20),
+        Obx(
+          () => Visibility(
+            visible: scoreController.isPlayed.value,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildText('ፍጥነት', color: primaryColor),
+                _buildText('${scoreController.currentSpeed.value} WPM',
+                    color: primaryColor),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Obx(
+          () => Visibility(
+            visible: scoreController.isPlayed.value,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildText('ትክክለኛነት', color: primaryColor),
+                _buildText(
+                    '${scoreController.currentAccuracy.value < 0 ? 0 : scoreController.currentAccuracy.value}%',
+                    color: primaryColor),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildText(String text,
+      {Color color = Colors.white,
+      double size = 18,
+      FontWeight weight = FontWeight.w300}) {
+    return Text(text,
+        style: TextStyle(
+          color: color,
+          fontSize: size,
+          fontFamily: 'roboto',
+          fontWeight: weight,
+        ));
+  }
+
+  _buildPlayButton() {
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      width: 80,
+      height: 35,
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: MaterialButton(
+        onPressed: () {
+          Get.to(() => Home());
+        },
+        child: _buildText('ጀምር', size: 15),
+      ),
     );
   }
 }

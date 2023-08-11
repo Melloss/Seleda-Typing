@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import './helper/color_pallet.dart';
 import 'dart:async';
+import 'package:get/get.dart';
+import 'controller/score_controller.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,11 +13,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with ColorPallet {
   final textController = TextEditingController();
+  final scoreController = Get.put(ScoreController());
   String currentText =
       "Selam new Melloss Endet Nek hiwot endet nat Menor min yimesilal ee?";
   int index = -1;
   List<bool> isCorrect = [];
-  late Timer timer;
+  var timer = null;
   int second = 0;
   int wpm = 0;
   int accuracy = 0;
@@ -51,52 +54,45 @@ class _HomeState extends State<Home> with ColorPallet {
     accuracy =
         ((100 * (currentText.length - numberOfError)) / currentText.length)
             .round();
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Center(child: Text("Result")),
-            content: Text(
-                "Speed: $wpm WPM\nAccuracy: ${accuracy < 0 ? 0 : accuracy}%",
-                textScaleFactor: 1.3),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  textController.text = "";
-                  Navigator.of(context).pop();
-                  isCorrect =
-                      currentText.split('').map((value) => true).toList();
-                  setState(() {
-                    second = 0;
-                    isCorrect = isCorrect;
-                    index = -1;
-                    numberOfError = 0;
-                  });
-                },
-                child: const Text("OK"),
-              )
-            ],
-          );
-        });
+    scoreController.currentAccuracy.value = accuracy;
+    scoreController.currentSpeed.value = wpm;
+    textController.text = "";
+    isCorrect = currentText.split('').map((value) => true).toList();
+    setState(() {
+      second = 0;
+      isCorrect = isCorrect;
+      index = -1;
+      numberOfError = 0;
+    });
+    if (scoreController.currentSpeed.value > scoreController.highScore.value) {
+      scoreController.highScore.value = scoreController.currentSpeed.value;
+      scoreController.isHighScore.value = true;
+    }
+    scoreController.isPlayed.value = true;
+    Get.back();
   }
 
   @override
   void initState() {
     isCorrect = currentText.split('').map((value) => true).toList();
     _focusNode = FocusNode();
-
+    //scoreController.isPlayed.value = false;
     super.initState();
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    if (timer != null) {
+      timer.cancel();
+    }
     textController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
   void textOnchangeHandler(String text) {
+    scoreController.isPlayed.value = false;
+    scoreController.isHighScore.value = false;
     int currentIndex = text.length - 1;
     if (text.length <= currentText.length) {
       if (text.isNotEmpty) {
@@ -114,7 +110,6 @@ class _HomeState extends State<Home> with ColorPallet {
             numberOfError++;
             isCorrect = isCorrect;
           });
-          print("Error: $numberOfError");
         }
 
         setState(() {
@@ -144,6 +139,16 @@ class _HomeState extends State<Home> with ColorPallet {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: Icon(Icons.arrow_back_ios, size: 15, color: inactiveColor),
+        ),
+      ),
       body: GestureDetector(
         onTap: openKeyboard,
         child: Container(

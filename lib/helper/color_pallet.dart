@@ -8,4 +8,5 @@ mixin ColorPallet {
   final optionBackground = Color(0xFF2C2E31);
   final blackBoardColor1 = Color(0xFF34694B);
   final blackBoardColor2 = Color.fromARGB(255, 15, 73, 17);
+  final primaryColor = Colors.orangeAccent;
 }
