@@ -3,7 +3,9 @@ import './helper/color_pallet.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:get/get.dart';
 import '/home.dart';
-import 'controller/score_controller.dart';
+import 'controllers/database_controller.dart';
+import 'controllers/score_controller.dart';
+import './widgets/end_drawer.dart';
 
 class StarterPage extends StatefulWidget {
   const StarterPage({super.key});
@@ -13,19 +15,30 @@ class StarterPage extends StatefulWidget {
 }
 
 class _StarterPageState extends State<StarterPage> with ColorPallet {
-  List<bool> isActive = [true, false, false, true, false, false];
+  List<bool> isActive = [true, false, false, false, false, false];
   bool startNext = false;
   bool startNextNext = false;
   bool startNextNextNext = false;
-  final scoreController = Get.put(ScoreController());
+  bool isDisabled = false;
+  int randomNumber = 0;
+  int selectedTime = 10;
+  ScoreController scoreController = Get.find();
+  DatabaseController databaseController = Get.find();
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
+      appBar: AppBar(actions: [
+        _buildAccountButton(),
+      ]),
+      endDrawer: const EndDrawer(),
       backgroundColor: backgroundColor,
       body: Column(
         children: [
           _buildBlackBoard(),
+          Expanded(child: Container()),
           _buildOptionPane(),
           _buildScoreResult(),
           Expanded(child: Container()),
@@ -39,9 +52,9 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
   _buildOptionPane() {
     return Container(
       clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 30),
-      width: double.infinity,
-      height: 35,
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 30),
+      width: MediaQuery.of(context).size.width,
+      height: 40,
       decoration: BoxDecoration(
         color: optionBackground,
         borderRadius: BorderRadius.circular(30),
@@ -53,35 +66,64 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
           _buildTextButton(2, 'ሥ-ነጥብ'),
           Expanded(child: Container()),
           const VerticalDivider(),
+          Expanded(child: Container()),
           _buildTextButton(3, '፲'),
           _buildTextButton(4, '፳'),
           _buildTextButton(5, '፴'),
-          Expanded(child: Container()),
         ],
       ),
     );
   }
 
   _buildTextButton(int index, String text) {
-    return TextButton(
-      onPressed: () {
-        if (index > 2) {
-          isActive[3] = false;
-          isActive[4] = false;
-          isActive[5] = false;
-          setState(() {
-            isActive[index] = true;
-          });
-        } else {
-          setState(() {
-            isActive[index] = !isActive[index];
-          });
-        }
-      },
-      style: ButtonStyle(
-          foregroundColor: MaterialStatePropertyAll(
-              isActive[index] ? primaryColor : inactiveColor.withOpacity(0.3))),
-      child: Text(text, style: const TextStyle(fontSize: 13)),
+    return SizedBox(
+      width: 55,
+      child: TextButton(
+        onPressed: () {
+          if (index > 2) {
+            for (int i = 3; i <= 5; i++) {
+              if (isActive[index] == false) {
+                if (index == i) {
+                  isActive[i] = true;
+                } else {
+                  isActive[i] = false;
+                }
+              } else {
+                isActive[i] = false;
+              }
+            }
+            setState(() {
+              isActive = isActive;
+            });
+
+            print(isActive[index]);
+          } else {
+            setState(() {
+              isActive[index] = index == 0 ? true : !isActive[index];
+            });
+          }
+        },
+        style: ButtonStyle(
+            foregroundColor: MaterialStatePropertyAll(isActive[index]
+                ? primaryColor
+                : inactiveColor.withOpacity(0.3))),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(
+            text,
+            style: const TextStyle(fontSize: 13),
+          ),
+          index > 2 ? const SizedBox(height: 1.5) : const SizedBox.shrink(),
+          Visibility(
+            visible: index > 2,
+            child: Text(
+              index == 3 ? "Seconds" : "Minutes",
+              style: const TextStyle(
+                fontSize: 7,
+              ),
+            ),
+          )
+        ]),
+      ),
     );
   }
 
@@ -90,8 +132,8 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
       children: [
         Container(
           margin: const EdgeInsets.only(top: 20),
-          width: MediaQuery.of(context).size.width * 0.7,
-          height: MediaQuery.of(context).size.width * 0.4,
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.width * 0.45,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -100,22 +142,30 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
                 ],
               ),
               borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  blurRadius: 25,
-                  spreadRadius: 2,
+                  color: Colors.black.withOpacity(0.6),
+                  blurRadius: 10,
+                  spreadRadius: 1,
                 )
               ]),
           child: Container(
             margin: const EdgeInsets.all(9),
             decoration: BoxDecoration(
                 gradient: LinearGradient(
-              colors: [
-                blackBoardColor2,
-                blackBoardColor1,
-                blackBoardColor2,
-              ],
-            )),
+                  colors: [
+                    blackBoardColor2,
+                    blackBoardColor1,
+                    blackBoardColor2,
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 1,
+                    spreadRadius: 1,
+                  )
+                ]),
             child: Padding(
               padding: const EdgeInsets.only(top: 5, left: 8),
               child: DefaultTextStyle(
@@ -159,14 +209,14 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
                             speed: const Duration(milliseconds: 200),
                             curve: Curves.easeOut,
                             textAlign: TextAlign.left,
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                               color: Colors.white70,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 8),
                     Visibility(
                       visible: startNextNext,
                       child: AnimatedTextKit(
@@ -190,7 +240,7 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     Visibility(
                       visible: startNextNextNext,
                       child: AnimatedTextKit(
@@ -351,15 +401,78 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
       width: 80,
       height: 35,
       decoration: BoxDecoration(
-        color: primaryColor.withOpacity(0.8),
+        color: isDisabled ? inactiveColor : primaryColor.withOpacity(0.8),
         borderRadius: BorderRadius.circular(30),
       ),
       child: MaterialButton(
-        onPressed: () {
-          Get.to(() => Home());
-        },
+        onPressed: isDisabled
+            ? null
+            : () {
+                if (isActive[0] == true ||
+                    isActive[0] == true ||
+                    isActive[0] == true) {
+                  if (isActive[0] == true) {
+                    databaseController.selectedText.value =
+                        databaseController.texts[randomNumber]['fidel'];
+                  }
+                  if (isActive[0] == true && isActive[1] == true) {
+                    databaseController.selectedText.value =
+                        databaseController.texts[randomNumber]['kutir'];
+                  }
+                  if (isActive[0] == true && isActive[2] == true ||
+                      isActive[1] == true && isActive[2] == true) {
+                    databaseController.selectedText.value =
+                        databaseController.texts[randomNumber]['sirateNetib'];
+                  }
+                }
+                if (isActive[3] == true) {
+                  selectedTime = 10;
+                } else if (isActive[4] == true) {
+                  selectedTime = 60;
+                } else if (isActive[5] == true) {
+                  selectedTime = 120;
+                } else {
+                  selectedTime = 0;
+                }
+
+                Get.to(
+                  () => Home(
+                    currentText: databaseController.selectedText.value,
+                    selectedTime: selectedTime,
+                  ),
+                );
+              },
         child: _buildText('ጀምር', size: 15),
       ),
+    );
+  }
+
+  @override
+  void dispose() {
+    scoreController.dispose();
+    databaseController.dispose();
+    super.dispose();
+  }
+
+  _buildAccountButton() {
+    return Obx(
+      () => IconButton(
+          onPressed: () {
+            scaffoldKey.currentState?.openEndDrawer();
+          },
+          icon: scoreController.isAccountCreated.value
+              ? const Icon(Icons.account_circle, size: 30)
+              : SizedBox(
+                  width: 50,
+                  child: Stack(children: [
+                    const Icon(Icons.account_circle, size: 30),
+                    Positioned(
+                      bottom: 0,
+                      left: 23,
+                      child: Icon(Icons.add, size: 10, color: primaryColor),
+                    ),
+                  ]),
+                )),
     );
   }
 }
