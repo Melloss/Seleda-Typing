@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'controllers/database_controller.dart';
-import 'controllers/score_controller.dart';
-import './starter_page.dart';
-import './helper/color_pallet.dart';
 import 'package:get/get.dart';
-import 'controllers/init_controllers.dart' as di;
+import 'package:firebase_core/firebase_core.dart';
+import './firebase_options.dart';
+import './controllers/score_controller.dart';
+import './screens/starter_page.dart';
+import './helper/color_pallet.dart';
+import './controllers/init_controllers.dart' as di;
+import './helper/responsive.dart';
 
 class App extends StatelessWidget with ColorPallet {
   App({super.key});
@@ -13,29 +15,50 @@ class App extends StatelessWidget with ColorPallet {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       home: const StarterPage(),
-      theme: ThemeData.dark().copyWith(
-          appBarTheme: AppBarTheme(
-            elevation: 0,
-            backgroundColor: backgroundColor,
-          ),
-          textButtonTheme: TextButtonThemeData(
-              style: ButtonStyle(
-            foregroundColor:
-                MaterialStatePropertyAll(inactiveColor.withOpacity(0.3)),
-          ))),
+      debugShowCheckedModeBanner: false,
+      theme: _buildTheme(context),
     );
+  }
+
+  _buildTheme(BuildContext context) {
+    return ThemeData(
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          backgroundColor: backgroundColor,
+        ),
+        textTheme: TextTheme(
+          displayLarge: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontFamily: 'NotoSerifEthiopic',
+            color: Colors.white70,
+            fontSize: responsiveFontSize(context, 26),
+          ),
+          displayMedium: TextStyle(
+            fontFamily: 'NotoSerifEthiopic',
+            color: Colors.white70,
+            fontSize: responsiveFontSize(context, 20),
+          ),
+          displaySmall: TextStyle(
+            fontFamily: 'NotoSerifEthiopic',
+            color: Colors.white60,
+            fontSize: responsiveFontSize(context, 15),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+            style: ButtonStyle(
+          foregroundColor:
+              MaterialStatePropertyAll(inactiveColor.withOpacity(0.3)),
+        )));
   }
 }
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await di.init();
-  DatabaseController databaseController = Get.find();
 
-  await databaseController.init();
-  await databaseController.fetch();
-  await databaseController.closeDb();
-  databaseController.dispose();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await di.init();
   ScoreController scoreController = Get.find();
   await scoreController.initSettings();
   scoreController.dispose();

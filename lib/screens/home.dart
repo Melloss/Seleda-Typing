@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import './helper/color_pallet.dart';
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:seleda_typing/helper/media_query.dart';
 import 'package:get/get.dart';
-import 'controllers/score_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../helper/color_pallet.dart';
+import '../controllers/score_controller.dart';
 
 class Home extends StatefulWidget {
   final String currentText;
@@ -98,10 +99,12 @@ class _HomeState extends State<Home> with ColorPallet {
     if (scoreController.currentSpeed.value > scoreController.highScore.value &&
         scoreController.currentAccuracy.value > 70) {
       scoreController.highScore.value = scoreController.currentSpeed.value;
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setInt('highScore', scoreController.currentSpeed.value);
-
+      // final prefs = await SharedPreferences.getInstance();
+      // prefs.setInt('highScore', scoreController.currentSpeed.value);
+      final scoreBox = await Hive.openBox('score');
+      scoreBox.put('highScore', scoreController.currentSpeed.value);
       scoreController.isHighScore.value = true;
+      await scoreBox.close();
     }
     scoreController.isPlayed.value = true;
 
@@ -258,22 +261,22 @@ class _HomeState extends State<Home> with ColorPallet {
         children: [
           for (int i = 0; i < widget.currentText.length; i++)
             TextSpan(
-                style: TextStyle(
-                    fontWeight:
-                        i == index ? FontWeight.w500 : FontWeight.normal,
-                    color: i == index
-                        ? index != prevIndex
-                            //if it is for the first time
-                            ? primaryColor
-                            : isCorrect[i]
-                                ? correctColor
-                                : errorColor
-                        : i > index
-                            ? inactiveColor
-                            : isCorrect[i]
-                                ? correctColor
-                                : errorColor),
-                text: widget.currentText[i]),
+              style: TextStyle(
+                  fontWeight: i == index ? FontWeight.w500 : FontWeight.normal,
+                  color: i == index
+                      ? index != prevIndex
+                          //if it is for the first time
+                          ? primaryColor
+                          : isCorrect[i]
+                              ? correctColor
+                              : errorColor
+                      : i > index
+                          ? inactiveColor
+                          : isCorrect[i]
+                              ? correctColor
+                              : errorColor),
+              text: widget.currentText[i],
+            ),
         ],
       ),
     );
@@ -281,10 +284,11 @@ class _HomeState extends State<Home> with ColorPallet {
 
   _buildTop() {
     return Container(
-        height: 35,
-        width: MediaQuery.of(context).size.width * 0.35,
+        height: 40,
+        width: screenWidth(context) * 0.35,
         margin: const EdgeInsets.only(bottom: 35),
         decoration: BoxDecoration(
+          border: Border.all(color: backgroundColor),
           color: optionBackground,
           borderRadius: BorderRadius.circular(30),
         ),
@@ -318,8 +322,10 @@ class _HomeState extends State<Home> with ColorPallet {
                       ? primaryColor.withOpacity(0.7)
                       : primaryColor.withOpacity(0.3)),
             ),
-            const SizedBox(width: 5),
-            const VerticalDivider(),
+            const SizedBox(width: 15),
+            VerticalDivider(
+              color: backgroundColor,
+            ),
             Expanded(
               child: Center(
                 child: Text(
