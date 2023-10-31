@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'screens/signin.dart';
 import './firebase_options.dart';
 import './controllers/score_controller.dart';
 import './screens/starter_page.dart';
@@ -14,7 +15,7 @@ class App extends StatelessWidget with ColorPallet {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      home: const StarterPage(),
+      home: const SignIn(),
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(context),
     );

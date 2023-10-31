@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:seleda_typing/helper/media_query.dart';
@@ -95,12 +96,12 @@ class _HomeState extends State<Home> with ColorPallet {
 
     scoreController.currentAccuracy.value = accuracy;
     scoreController.currentSpeed.value = wpm;
+    scoreController.registerHighScore();
 
     if (scoreController.currentSpeed.value > scoreController.highScore.value &&
         scoreController.currentAccuracy.value > 70) {
       scoreController.highScore.value = scoreController.currentSpeed.value;
-      // final prefs = await SharedPreferences.getInstance();
-      // prefs.setInt('highScore', scoreController.currentSpeed.value);
+      //saving high score...
       final scoreBox = await Hive.openBox('score');
       scoreBox.put('highScore', scoreController.currentSpeed.value);
       scoreController.isHighScore.value = true;

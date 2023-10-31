@@ -8,6 +8,7 @@ class ScoreController extends GetxController {
   RxInt currentSpeed = 0.obs;
   RxBool isPlayed = false.obs;
   RxBool isHighScore = false.obs;
+  String userName = 'demo';
 
   int top1 = 0;
   int top2 = 0;
@@ -45,5 +46,44 @@ class ScoreController extends GetxController {
     top5 = snap5.data()!['speed'];
     print(top1);
     print(top2);
+  }
+
+  registerHighScore() async {
+    try {
+      final store = FirebaseFirestore.instance;
+      if (currentSpeed.value > top1) {
+        await store.collection('high-score').doc('Top-1').update({
+          'userName': userName,
+          'speed': currentSpeed.value,
+          'accuracy': currentAccuracy.value,
+        });
+      } else if (currentSpeed.value > top2) {
+        await store.collection('high-score').doc('Top-2').update({
+          'userName': userName,
+          'speed': currentSpeed.value,
+          'accuracy': currentAccuracy.value,
+        });
+      } else if (currentSpeed.value > top3) {
+        await store.collection('high-score').doc('Top-3').update({
+          'userName': userName,
+          'speed': currentSpeed.value,
+          'accuracy': currentAccuracy.value,
+        });
+      } else if (currentSpeed.value > top4) {
+        await store.collection('high-score').doc('Top-4').update({
+          'userName': userName,
+          'speed': currentSpeed.value,
+          'accuracy': currentAccuracy.value,
+        });
+      } else if (currentSpeed.value > top5) {
+        await store.collection('high-score').doc('Top-5').update({
+          'userName': userName,
+          'speed': currentSpeed.value,
+          'accuracy': currentAccuracy.value,
+        });
+      }
+    } catch (error) {
+      print(error.toString());
+    }
   }
 }

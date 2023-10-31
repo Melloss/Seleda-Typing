@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:get/get.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import '../helper/color_pallet.dart';
 import '../controllers/score_controller.dart';
 import '../helper/responsive.dart';
@@ -13,11 +15,13 @@ class BlackBoard extends StatefulWidget {
   State<BlackBoard> createState() => _BlackBoardState();
 }
 
-class _BlackBoardState extends State<BlackBoard> with ColorPallet {
+class _BlackBoardState extends State<BlackBoard>
+    with ColorPallet, TickerProviderStateMixin {
   bool startNext = false;
   bool startNextNext = false;
   bool startNextNextNext = false;
   bool showTop5 = false;
+  final GlobalKey<SignatureState> _signatureKey = GlobalKey<SignatureState>();
   ScoreController scoreController = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -69,6 +73,21 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
                 child: Column(
                   children: [
                     Visibility(
+                      visible: showTop5,
+                      child: AnimatedTextKit(
+                        isRepeatingAnimation: false,
+                        displayFullTextOnTap: true,
+                        animatedTexts: [
+                          TyperAnimatedText(
+                            'Top 5 Scores',
+                            textAlign: TextAlign.center,
+                            speed: const Duration(milliseconds: 200),
+                            textStyle: Theme.of(context).textTheme.displayLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Visibility(
                       visible: !showTop5,
                       child: AnimatedTextKit(
                         isRepeatingAnimation: false,
@@ -88,7 +107,8 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    Visibility(
+                        visible: !showTop5, child: const SizedBox(height: 30)),
                     Visibility(
                       visible: startNext,
                       child: AnimatedTextKit(
@@ -111,7 +131,8 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    Visibility(
+                        visible: !showTop5, child: const SizedBox(height: 20)),
                     Visibility(
                       visible: startNextNext,
                       child: AnimatedTextKit(
@@ -134,7 +155,7 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 30),
                     Visibility(
                       visible: startNextNextNext,
                       child: AnimatedTextKit(
@@ -155,7 +176,8 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
                             speed: const Duration(milliseconds: 200),
                             curve: Curves.bounceOut,
                             textAlign: TextAlign.end,
-                            textStyle: Theme.of(context).textTheme.displaySmall,
+                            textStyle:
+                                Theme.of(context).textTheme.displayMedium,
                           ),
                         ],
                       ),
@@ -172,38 +194,128 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
                         }
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Text(
-                            'Loading...',
-                            style: Theme.of(context).textTheme.displayMedium,
+                          return SpinKitThreeBounce(
+                            color: Colors.white,
+                            size: 20.0,
+                            controller: AnimationController(
+                                vsync: this,
+                                duration: const Duration(milliseconds: 1200)),
                           );
                         }
 
                         scoreController.getTop5Scores();
-                        // Text(snapshot.data!['userName'].toString()),
-                        //   Text(snapshot.data!['accuracy'].toString()),
-                        //   Text(snapshot.data!['speed'].toString()),
 
-                        return Column(
-                          children: snapshot.data!.docs
-                              .map((DocumentSnapshot document) {
-                            Map<String, dynamic> data =
-                                document.data() as Map<String, dynamic>;
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                    '${data['userName']}${data['speed']}WPM ${data['accuracy']}%'),
-                              ],
-                            );
-                          }).toList(),
+                        return Visibility(
+                          visible: showTop5,
+                          child: Column(
+                            children: [
+                              for (int i = 0;
+                                  i < snapshot.data!.docs.length;
+                                  i++)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${getGeezNumber(i + 1)}.',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displayMedium,
+                                          ),
+                                          const SizedBox(width: 15),
+                                          Text(
+                                            '${snapshot.data!.docs[i]['userName']}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displayMedium,
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        '${snapshot.data!.docs[i]['speed']}WPM',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .displayMedium,
+                                      ),
+                                      Text(
+                                        '${snapshot.data!.docs[i]['accuracy']}%',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .displayMedium,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
                         );
+                        // return Visibility(
+                        //   visible: showTop5,
+                        //   child: Column(
+                        //     children: snapshot.data!.docs
+                        //         .map((DocumentSnapshot document) {
+                        //       Map<String, dynamic> data =
+                        //           document.data() as Map<String, dynamic>;
+
+                        //       return Column(
+                        //         crossAxisAlignment: CrossAxisAlignment.center,
+                        //         children: [
+                        //           Row(
+                        //             mainAxisAlignment:
+                        //                 MainAxisAlignment.spaceAround,
+                        //             children: [
+                        //               Text(
+                        //                 '${data['userName']}',
+                        //                 style: Theme.of(context)
+                        //                     .textTheme
+                        //                     .displayMedium,
+                        //               ),
+                        //               Text(
+                        //                 '${data['speed']}WPM',
+                        //                 style: Theme.of(context)
+                        //                     .textTheme
+                        //                     .displayMedium,
+                        //               ),
+                        //               Text(
+                        //                 '${data['accuracy']}%',
+                        //                 style: Theme.of(context)
+                        //                     .textTheme
+                        //                     .displayMedium,
+                        //               ),
+                        //             ],
+                        //           ),
+                        //           const SizedBox(height: 10),
+                        //         ],
+                        //       );
+                        //     }).toList(),
+                        //   ),
+                        // );
                       }),
                     ),
                   ],
                 ),
               ),
             ),
+          ),
+        ),
+        Positioned(
+          top: 29,
+          left: 9,
+          right: 9,
+          bottom: 9,
+          child: Signature(
+            color: inactiveColor, // Color of the drawing path
+            strokeWidth: 3.0, // with
+            backgroundPainter:
+                null, // Additional custom painter to draw stuff like watermark
+            onSign: null, // Callback called on user pan drawing
+            key: _signatureKey,
+            // key that allow you to provide a GlobalKey that'll let you retrieve the image once user has signed
           ),
         ),
         Positioned(
@@ -218,19 +330,24 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
         Positioned(
           bottom: 9,
           left: 55,
-          child: Column(
-            children: [
-              Container(
-                width: 40,
-                height: 2,
-                color: Colors.white.withOpacity(0.6),
-              ),
-              Container(
-                width: 40,
-                height: 8,
-                color: Colors.black,
-              ),
-            ],
+          child: InkWell(
+            onTap: () {
+              _signatureKey.currentState?.clear();
+            },
+            child: Column(
+              children: [
+                Container(
+                  width: 40,
+                  height: 2,
+                  color: Colors.white.withOpacity(0.6),
+                ),
+                Container(
+                  width: 40,
+                  height: 8,
+                  color: Colors.black,
+                ),
+              ],
+            ),
           ),
         ),
         Positioned(
@@ -256,5 +373,18 @@ class _BlackBoardState extends State<BlackBoard> with ColorPallet {
         ),
       ],
     );
+  }
+
+  getGeezNumber(int number) {
+    if (number == 1) {
+      return '፩';
+    } else if (number == 2) {
+      return '፪';
+    } else if (number == 3) {
+      return '፫';
+    } else if (number == 4) {
+      return '፬';
+    }
+    return '፭';
   }
 }
