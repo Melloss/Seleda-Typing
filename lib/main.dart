@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:seleda_typing/screens/sign_in.dart';
-import 'package:seleda_typing/screens/sign_up.dart';
+import '../screens/starter_page.dart';
+import './screens/sign_in.dart';
 import './firebase_options.dart';
 import './controllers/score_controller.dart';
 import './helper/color_pallet.dart';
@@ -11,12 +11,14 @@ import './helper/responsive.dart';
 
 class App extends StatelessWidget with ColorPallet {
   App({super.key});
+  ScoreController scoreController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const SignIn(),
+      home:
+          scoreController.isLoggedBefore ? const StarterPage() : const SignIn(),
       theme: _buildTheme(context),
     );
   }

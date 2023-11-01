@@ -20,13 +20,17 @@ class _SnackBarMessageState extends State<SnackBarMessage> with ColorPallet {
     Timer.periodic(const Duration(milliseconds: 500), (Timer timer) {
       if (snackbarWidth == 0) {
         timer.cancel();
-        setState(() {
-          showSnackBar = false;
-        });
+        if (mounted) {
+          setState(() {
+            showSnackBar = false;
+          });
+        }
       } else {
-        setState(() {
-          snackbarWidth = snackbarWidth - 50;
-        });
+        if (mounted) {
+          setState(() {
+            snackbarWidth = snackbarWidth - 50;
+          });
+        }
       }
 
       print(snackbarWidth);
@@ -54,7 +58,9 @@ class _SnackBarMessageState extends State<SnackBarMessage> with ColorPallet {
             Center(
               child: Text(
                 widget.message,
-                style: Theme.of(context).textTheme.displayMedium,
+                style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                      fontSize: 14,
+                    ),
               ),
             ),
             Expanded(child: Container()),

@@ -79,7 +79,7 @@ class _BlackBoardState extends State<BlackBoard>
                         displayFullTextOnTap: true,
                         animatedTexts: [
                           TyperAnimatedText(
-                            'Top 5 Scores',
+                            'Top 7 Scores',
                             textAlign: TextAlign.center,
                             speed: const Duration(milliseconds: 200),
                             textStyle: Theme.of(context).textTheme.displayLarge,
@@ -155,7 +155,7 @@ class _BlackBoardState extends State<BlackBoard>
                         ],
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     Visibility(
                       visible: startNextNextNext,
                       child: AnimatedTextKit(
@@ -218,34 +218,74 @@ class _BlackBoardState extends State<BlackBoard>
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '${getGeezNumber(i + 1)}.',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displayMedium,
-                                          ),
-                                          const SizedBox(width: 15),
-                                          Text(
-                                            '${snapshot.data!.docs[i]['userName']}',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .displayMedium,
-                                          ),
-                                        ],
+                                      SizedBox(
+                                        width: 220,
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              '${getGeezNumber(i + 1)}.',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .displayMedium!
+                                                  .copyWith(
+                                                    color: snapshot.data!
+                                                                    .docs[i]
+                                                                ['userName'] ==
+                                                            scoreController
+                                                                .userName
+                                                        ? primaryColor
+                                                        : Colors.white70,
+                                                  ),
+                                            ),
+                                            const SizedBox(width: 15),
+                                            Text(
+                                                snapshot.data!
+                                                            .docs[i]['userName']
+                                                            .toString()
+                                                            .length <
+                                                        20
+                                                    ? '${snapshot.data!.docs[i]['userName']}'
+                                                    : '${snapshot.data!.docs[i]['userName'].toString().substring(0, 20)}...',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .displayMedium!
+                                                    .copyWith(
+                                                      color: snapshot.data!
+                                                                      .docs[i][
+                                                                  'userName'] ==
+                                                              scoreController
+                                                                  .userName
+                                                          ? primaryColor
+                                                          : Colors.white70,
+                                                    )),
+                                          ],
+                                        ),
                                       ),
                                       Text(
                                         '${snapshot.data!.docs[i]['speed']}WPM',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .displayMedium,
+                                            .displayMedium!
+                                            .copyWith(
+                                              color: snapshot.data!.docs[i]
+                                                          ['userName'] ==
+                                                      scoreController.userName
+                                                  ? primaryColor
+                                                  : Colors.white70,
+                                            ),
                                       ),
                                       Text(
                                         '${snapshot.data!.docs[i]['accuracy']}%',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .displayMedium,
+                                            .displayMedium!
+                                            .copyWith(
+                                              color: snapshot.data!.docs[i]
+                                                          ['userName'] ==
+                                                      scoreController.userName
+                                                  ? primaryColor
+                                                  : Colors.white70,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -254,47 +294,6 @@ class _BlackBoardState extends State<BlackBoard>
                             ],
                           ),
                         );
-                        // return Visibility(
-                        //   visible: showTop5,
-                        //   child: Column(
-                        //     children: snapshot.data!.docs
-                        //         .map((DocumentSnapshot document) {
-                        //       Map<String, dynamic> data =
-                        //           document.data() as Map<String, dynamic>;
-
-                        //       return Column(
-                        //         crossAxisAlignment: CrossAxisAlignment.center,
-                        //         children: [
-                        //           Row(
-                        //             mainAxisAlignment:
-                        //                 MainAxisAlignment.spaceAround,
-                        //             children: [
-                        //               Text(
-                        //                 '${data['userName']}',
-                        //                 style: Theme.of(context)
-                        //                     .textTheme
-                        //                     .displayMedium,
-                        //               ),
-                        //               Text(
-                        //                 '${data['speed']}WPM',
-                        //                 style: Theme.of(context)
-                        //                     .textTheme
-                        //                     .displayMedium,
-                        //               ),
-                        //               Text(
-                        //                 '${data['accuracy']}%',
-                        //                 style: Theme.of(context)
-                        //                     .textTheme
-                        //                     .displayMedium,
-                        //               ),
-                        //             ],
-                        //           ),
-                        //           const SizedBox(height: 10),
-                        //         ],
-                        //       );
-                        //     }).toList(),
-                        //   ),
-                        // );
                       }),
                     ),
                   ],
@@ -309,13 +308,11 @@ class _BlackBoardState extends State<BlackBoard>
           right: 9,
           bottom: 9,
           child: Signature(
-            color: inactiveColor, // Color of the drawing path
-            strokeWidth: 3.0, // with
-            backgroundPainter:
-                null, // Additional custom painter to draw stuff like watermark
-            onSign: null, // Callback called on user pan drawing
+            color: inactiveColor.withOpacity(0.2),
+            strokeWidth: 2.0,
+            backgroundPainter: null,
+            onSign: null,
             key: _signatureKey,
-            // key that allow you to provide a GlobalKey that'll let you retrieve the image once user has signed
           ),
         ),
         Positioned(
@@ -384,7 +381,12 @@ class _BlackBoardState extends State<BlackBoard>
       return '፫';
     } else if (number == 4) {
       return '፬';
+    } else if (number == 5) {
+      return '፭';
+    } else if (number == 6) {
+      return '፮';
+    } else {
+      return '፯';
     }
-    return '፭';
   }
 }

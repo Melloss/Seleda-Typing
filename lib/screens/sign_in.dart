@@ -1,9 +1,12 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:seleda_typing/helper/snackbar.dart';
+import '../helper/snackbar.dart';
 import '../screens/sign_up.dart';
 import '../helper/color_pallet.dart';
+import '../services/authentication.dart';
+import './starter_page.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -12,10 +15,12 @@ class SignIn extends StatefulWidget {
   State<SignIn> createState() => _SignInState();
 }
 
-class _SignInState extends State<SignIn> with ColorPallet {
+class _SignInState extends State<SignIn>
+    with ColorPallet, TickerProviderStateMixin {
   bool showPassword = false;
   final emailConroller = TextEditingController();
   final passwordController = TextEditingController();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +89,7 @@ class _SignInState extends State<SignIn> with ColorPallet {
                   fontSize: 17,
                   color: inactiveColor,
                 ),
-            prefixIcon: Icon(Icons.person, color: inactiveColor),
+            prefixIcon: Icon(Icons.email, color: inactiveColor),
             border: InputBorder.none,
           ),
         ),
@@ -141,16 +146,51 @@ class _SignInState extends State<SignIn> with ColorPallet {
         borderRadius: BorderRadius.circular(5),
       ),
       child: InkWell(
-        onTap: () {
-          //TODO:
-          snackbar(context, 'Selam', false);
+        onTap: () async {
+          String email = emailConroller.text;
+          String password = passwordController.text;
+          bool isEmailValid = false;
+          bool isPassowordValid = false;
+          if (email.isEmpty || password.isEmpty) {
+            snackbar(context, 'Email or Passoword is Empty', true);
+          } else {
+            if (!email.isEmail) {
+              snackbar(context, 'Email is Invalid', true);
+            } else {
+              isEmailValid = true;
+            }
+            if (password.length < 6) {
+              snackbar(context, 'Password is less than 6 characters', true);
+            } else {
+              isPassowordValid = true;
+            }
+          }
+          if (isPassowordValid == true && isEmailValid == true) {
+            print('Ready to login');
+            snackbar(context, 'ready to login', false);
+            setState(() {
+              isLoading = true;
+            });
+            await Authentication.signinWithEmailAndPassword(email, password);
+            setState(() {
+              isLoading = false;
+            });
+            Get.offAll(() => const StarterPage());
+          }
         },
-        child: Center(
-          child: Text(
-            'Login',
-            style: Theme.of(context).textTheme.displayMedium,
-          ),
-        ),
+        child: isLoading == true
+            ? SpinKitThreeBounce(
+                color: Colors.white,
+                size: 15.0,
+                controller: AnimationController(
+                    vsync: this, duration: const Duration(milliseconds: 1200)),
+              )
+            : Center(
+                child: Text(
+                  'Login',
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
+              ),
       ),
     );
   }

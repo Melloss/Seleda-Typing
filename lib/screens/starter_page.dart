@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import '../screens/sign_in.dart';
+import '../services/authentication.dart';
 import '../helper/color_pallet.dart';
-import 'home.dart';
+import './home.dart';
 import '../controllers/score_controller.dart';
 import '../widgets/end_drawer.dart';
 import '../helper/responsive.dart';
@@ -34,6 +37,7 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
       backgroundColor: backgroundColor,
       body: Column(
         children: [
+          _buildUserName(),
           const BlackBoard(),
           Expanded(child: Container()),
           _buildOptionPane(),
@@ -76,7 +80,8 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
 
   _buildTextButton(int index, String text) {
     return SizedBox(
-      width: 70,
+      width: 80,
+      height: 45,
       child: TextButton(
         onPressed: () {
           if (index > 2) {
@@ -264,5 +269,49 @@ class _StarterPageState extends State<StarterPage> with ColorPallet {
 
   _buildAccountButton() {
     return Container();
+  }
+
+  _buildUserName() {
+    return Container(
+      padding: const EdgeInsets.only(right: 20.0, bottom: 35),
+      child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        Icon(
+          Icons.person_2,
+          size: 27,
+          color: inactiveColor,
+        ),
+        const SizedBox(width: 10),
+        Text(
+          scoreController.userName,
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: inactiveColor,
+                fontSize: 18,
+              ),
+        ),
+        const SizedBox(width: 20),
+        Icon(
+          Icons.notifications,
+          size: 24,
+          color: inactiveColor,
+        ),
+        const SizedBox(width: 10),
+        InkWell(
+            onTap: () async {
+              final scoreBox = await Hive.openBox('score');
+              scoreBox.put('userName', '');
+              scoreBox.put('isLoggedBefore', false);
+              scoreController.userName = '';
+              scoreController.isLoggedBefore = false;
+              scoreBox.close();
+              Authentication.signout();
+              Get.offAll(() => const SignIn());
+            },
+            child: Icon(
+              Icons.logout,
+              size: 22,
+              color: inactiveColor,
+            ))
+      ]),
+    );
   }
 }

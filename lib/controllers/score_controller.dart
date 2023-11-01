@@ -8,13 +8,17 @@ class ScoreController extends GetxController {
   RxInt currentSpeed = 0.obs;
   RxBool isPlayed = false.obs;
   RxBool isHighScore = false.obs;
-  String userName = 'demo';
+  String userName = '';
+  RxBool isUserNameLoading = false.obs;
+  bool isLoggedBefore = false;
 
   int top1 = 0;
   int top2 = 0;
   int top3 = 0;
   int top4 = 0;
   int top5 = 0;
+  int top6 = 0;
+  int top7 = 0;
 
   initSettings() async {
     final scoreBox = await Hive.openBox('score');
@@ -22,6 +26,16 @@ class ScoreController extends GetxController {
       scoreBox.put('highScore', 0);
     } else {
       highScore.value = scoreBox.get('highScore');
+    }
+    if (scoreBox.containsKey('userName') == false) {
+      scoreBox.put('userName', '');
+    } else {
+      userName = scoreBox.get('userName');
+    }
+    if (scoreBox.containsKey('isLoggedBefore') == false) {
+      scoreBox.put('isLoggedBefore', false);
+    } else {
+      isLoggedBefore = scoreBox.get('isLoggedBefore');
     }
     await scoreBox.close();
   }
@@ -44,8 +58,10 @@ class ScoreController extends GetxController {
     top4 = snap4.data()!['speed'];
     final snap5 = await store.collection('high-score').doc('Top-5').get();
     top5 = snap5.data()!['speed'];
-    print(top1);
-    print(top2);
+    final snap6 = await store.collection('high-score').doc('Top-6').get();
+    top6 = snap6.data()!['speed'];
+    final snap7 = await store.collection('high-score').doc('Top-7').get();
+    top7 = snap7.data()!['speed'];
   }
 
   registerHighScore() async {
@@ -77,6 +93,18 @@ class ScoreController extends GetxController {
         });
       } else if (currentSpeed.value > top5) {
         await store.collection('high-score').doc('Top-5').update({
+          'userName': userName,
+          'speed': currentSpeed.value,
+          'accuracy': currentAccuracy.value,
+        });
+      } else if (currentSpeed.value > top6) {
+        await store.collection('high-score').doc('Top-6').update({
+          'userName': userName,
+          'speed': currentSpeed.value,
+          'accuracy': currentAccuracy.value,
+        });
+      } else if (currentSpeed.value > top7) {
+        await store.collection('high-score').doc('Top-7').update({
           'userName': userName,
           'speed': currentSpeed.value,
           'accuracy': currentAccuracy.value,
