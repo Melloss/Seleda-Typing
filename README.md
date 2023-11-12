@@ -6,4 +6,3 @@ I have built Amharic Typing learning Website and Desktop App using Flutter
 ![Screenshot from 2023-11-12 13-27-37](https://github.com/Melloss/Seleda-Typing/assets/101984338/fff229f2-9768-4aca-a178-0d3ae0f801bf)
 ![Screenshot from 2023-11-12 13-28-05](https://github.com/Melloss/Seleda-Typing/assets/101984338/08345815-df69-4a70-9e1c-588aba5f0084)
 ![Screenshot from 2023-11-12 13-28-39](https://github.com/Melloss/Seleda-Typing/assets/101984338/6bbb977f-e996-4c45-9f68-ae67614dfdef)
-
