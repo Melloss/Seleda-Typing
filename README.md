@@ -1,8 +1,7 @@
 # seleda_typing
 I have built Amharic Typing learning Website and Desktop App using Flutter
-
-![Screenshot from 2023-11-12 13-26-44](https://github.com/Melloss/Seleda-Typing/assets/101984338/31ce3658-b3ee-464b-b3bc-034a1ad3ff13)
-![Screenshot from 2023-11-12 13-27-15](https://github.com/Melloss/Seleda-Typing/assets/101984338/0175c7a2-a2f3-4a8e-93ef-dd1499a9ecb0)
-![Screenshot from 2023-11-12 13-27-37](https://github.com/Melloss/Seleda-Typing/assets/101984338/fff229f2-9768-4aca-a178-0d3ae0f801bf)
-![Screenshot from 2023-11-12 13-28-05](https://github.com/Melloss/Seleda-Typing/assets/101984338/08345815-df69-4a70-9e1c-588aba5f0084)
-![Screenshot from 2023-11-12 13-28-39](https://github.com/Melloss/Seleda-Typing/assets/101984338/6bbb977f-e996-4c45-9f68-ae67614dfdef)
+![Screenshot from 2023-11-12 13-26-44](https://github.com/Melloss/Seleda-Typing/assets/101984338/2bc0825c-523b-4a3f-a350-8abddd674fb5)
+![Screenshot from 2023-11-12 13-27-15](https://github.com/Melloss/Seleda-Typing/assets/101984338/0a840566-a629-48b1-a7ce-4629356bc27a)
+![Screenshot from 2023-11-12 13-27-37](https://github.com/Melloss/Seleda-Typing/assets/101984338/c1c0132d-8b69-4568-b28d-ed6f5c8f1912)
+![Screenshot from 2023-11-12 13-28-39](https://github.com/Melloss/Seleda-Typing/assets/101984338/453bc4ce-d50c-4fe3-924b-21380c9dc63e)
+![Screenshot from 2023-11-12 13-28-05](https://github.com/Melloss/Seleda-Typing/assets/101984338/c78e23fa-7160-4f24-b133-abf3e4f53f36)
